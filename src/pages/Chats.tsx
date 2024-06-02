@@ -5,6 +5,7 @@ import TableThree from '../components/Tables/TableThree';
 import { Package } from '../types/chat';
 import axios from 'axios';
 import MessageModal from '../components/messagesModal';
+
 const Chats = () => {
   const [packageData, setPackageData] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +73,7 @@ const Chats = () => {
       <TableThree data={packageData} loading={loading} />
       <MessageModal
         show={showModal}
-        message={['Replying to selected unread chats......', 'close']} 
+        message={['Replying to selected unread chats......', 'close']}
       />
     </DefaultLayout>
   );

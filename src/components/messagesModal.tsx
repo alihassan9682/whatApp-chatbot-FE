@@ -14,7 +14,7 @@ export const MessageModal = ({ show, message, onClose }) => {
           src={anim}
           style={{ height: '300px', width: '300px' }} // Enlarged animation size
         />
-        <p className="mt-2 text-lg ">{message[0``]}</p>
+        <p className="mt-2 text-lg ">{message[0]}</p>
         <button
           onClick={onClose}
           className="mt-6 py-3 px-6 bg-green-600 hover:bg-green-700 text-white rounded-lg"
