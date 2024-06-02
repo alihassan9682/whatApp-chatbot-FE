@@ -12,8 +12,9 @@ const Settings = () => {
   const [isSending, setIsSending] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState([]);
+  const [textBoxes, setTextBoxes] = useState(['']);
   const maxPageNumbersToShow = 5;
-  const tableRef = useRef(null); // Add useRef to scroll to the table
+  const tableRef = useRef(null);
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -24,7 +25,7 @@ const Settings = () => {
         setData(result);
         const json = generateJSON(result);
         setJsonData(json);
-        scrollToTable(); // Scroll to the table after data is set
+        scrollToTable();
       });
     } else if (
       fileType ===
@@ -34,24 +35,42 @@ const Settings = () => {
         setData(result);
         const json = generateJSON(result);
         setJsonData(json);
-        scrollToTable(); // Scroll to the table after data is set
+        scrollToTable();
       });
     } else {
       alert('Unsupported file format. Please upload a CSV or Excel file.');
     }
   };
 
+  const handleAddTextBox = () => {
+    setTextBoxes([...textBoxes, '']);
+  };
+
+  const handleTextBoxChange = (index, value) => {
+    const newTextBoxes = [...textBoxes];
+    newTextBoxes[index] = value;
+    setTextBoxes(newTextBoxes);
+  };
+
+  const handleRemoveTextBox = (index) => {
+    const newTextBoxes = textBoxes.filter((_, i) => i !== index);
+    setTextBoxes(newTextBoxes);
+  };
+
   const sendJsonToApi = () => {
     setIsSending(true);
     setShowModal(true);
-    setModalMessage(['Sending messages, please wait...','close']);
+    setModalMessage(['Sending messages, please wait...', 'close']);
 
     fetch('http://127.0.0.1:8000/send_bulk_messages/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ details: jsonData }),
+      body: JSON.stringify({
+        details: jsonData,
+        texts: textBoxes.filter((text) => text !== ''), // Include non-empty text boxes
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -67,18 +86,16 @@ const Settings = () => {
       });
   };
 
-  // Scroll to the table
   const scrollToTable = () => {
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  // Pagination calculations
   const indexOfLastRow = currentPage * rowsPerPage;
   const indexOfFirstRow = indexOfLastRow - rowsPerPage;
-  const currentRows = data.slice(indexOfFirstRow, indexOfLastRow);
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const currentRows = data.slice(indexOfFirstRow + 1, indexOfLastRow + 1); // Adjusting slice to skip header
+  const totalPages = Math.ceil((data.length - 1) / rowsPerPage); // Adjusting total pages calculation
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -154,7 +171,37 @@ const Settings = () => {
                     <p className="mt-1.5">CSV or Excel files</p>
                   </div>
                 </div>
-                <div className="flex justify-end ">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {textBoxes.map((textBox, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <textarea
+                        value={textBox}
+                        onChange={(e) =>
+                          handleTextBoxChange(index, e.target.value)
+                        }
+                        placeholder="Type a message"
+                        className="flex-grow p-2 border rounded-md border-dashed focus:outline-none border-green-600 focus:border-2 focus:border-solid "
+                      />
+                      <button
+                        onClick={() => handleRemoveTextBox(index)}
+                        className="py-0.5 px-3 text-red-600 border-2 border-dashed border-red-600 rounded-full text-lg font-bold"
+                      >
+                        -
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex mt-4">
+                  <button
+                    onClick={handleAddTextBox}
+                    className="py-2 px-4 bg-green-600 text-white rounded-md"
+                  >
+                    Add a new message box
+                  </button>
+                </div>
+
+                <div className="flex justify-end mt-4">
                   <button
                     onClick={sendJsonToApi}
                     className="py-2 px-4 bg-green-600 text-white rounded-md"
@@ -166,7 +213,7 @@ const Settings = () => {
               </div>
             </div>
 
-            {data.length > 0 && (
+            {data.length > 1 && ( // Ensure there is more than just the header row
               <div
                 ref={tableRef}
                 className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mt-6"
