@@ -62,7 +62,7 @@ const Settings = () => {
     setShowModal(true);
     setModalMessage(['Sending messages, please wait...', 'close']);
 
-    fetch('http://127.0.0.1:8000/send_bulk_messages/', {
+    fetch('http://13.60.82.53/send_bulk_messages/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
