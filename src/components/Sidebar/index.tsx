@@ -67,7 +67,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         <NavLink to="/">
           <div className='flex items-end'>
             <img src={Logo} alt="Logo" className="w-20 h-20" />
-            <div className='text-2xl py-4 text-white font-semibold underline underline-offset-8'>Chat Bot</div>
+            <div className='text-2xl py-4 text-white font-semibold underline underline-offset-8'>Chat Botra</div>
           </div>
         </NavLink>
         <button
